@@ -128,6 +128,7 @@ struct MarkdownViewRenderer: @preconcurrency MarkupVisitor {
     func visitInlineCode(_ inlineCode: InlineCode) -> MarkdownNodeView {
         let tintColor = configuration.tintColors[.inlineCodeBlock, default: .accentColor]
         var attributedString = AttributedString(stringLiteral: inlineCode.code)
+        attributedString.inlinePresentationIntent = .code
         attributedString.foregroundColor = tintColor
         return MarkdownNodeView(attributedString)
     }

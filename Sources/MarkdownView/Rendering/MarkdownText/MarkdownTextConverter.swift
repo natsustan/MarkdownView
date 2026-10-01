@@ -225,6 +225,7 @@ struct MarkdownTextConverter: @MainActor MarkupVisitor {
     func visitInlineCode(_ inlineCode: InlineCode) -> TextContent {
         let tintColor = configuration.tintColors[.inlineCodeBlock] ?? .accentColor
         var attributedString = AttributedString(stringLiteral: inlineCode.code)
+        attributedString.inlinePresentationIntent = .code
         attributedString.foregroundColor = tintColor
         return TextContent(.attributedString(attributedString))
     }
