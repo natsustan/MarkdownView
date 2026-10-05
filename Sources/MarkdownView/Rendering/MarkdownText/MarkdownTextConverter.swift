@@ -280,21 +280,9 @@ struct MarkdownTextConverter: @MainActor MarkupVisitor {
             }
         }
 
-        var attributes = AttributeContainer()
-            .link(url)
-            .foregroundColor(configuration.tintColors[.link] ?? .accentColor)
-
-        if configuration.underlineLinks {
-            attributes.underlineStyle = .single
-        } else {
-            attributes.underlineStyle = .none
-        }
-
         return TextContent(
             .attributedString(
-                descendInto(link)
-                    .attributedString()
-                    .mergingAttributes(attributes)
+                configuration.decoratedLinkLabel(descendInto(link).attributedString(), url: url)
             )
         )
     }

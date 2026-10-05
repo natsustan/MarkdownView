@@ -13,6 +13,7 @@ import SwiftUI
 struct _MarkdownText: View {
     var text: AttributedString
     @State private var attributedString: RenderedState?
+    @Environment(\.markdownRendererConfiguration) private var configuration
     
     init(_ text: AttributedString) {
         self.text = text
@@ -21,9 +22,9 @@ struct _MarkdownText: View {
     var body: some View {
         Group {
             if let attributedString {
-                Text(Self.visibleText(input: text, rendered: attributedString))
+                renderedText(Self.visibleText(input: text, rendered: attributedString))
             } else {
-                Text(text)
+                renderedText(text)
             }
         }
         .task(id: text) {
@@ -49,6 +50,39 @@ struct _MarkdownText: View {
             guard !Task.isCancelled else { return }
             self.attributedString = RenderedState(input: text, output: attributedString)
         }
+    }
+
+    @ViewBuilder
+    private func renderedText(_ text: AttributedString) -> some View {
+        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *) {
+            roundLinkUnderlineText(text)
+                .textRenderer(RoundLinkUnderlineRenderer())
+        } else {
+            Text(text)
+        }
+    }
+
+    @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+    private func roundLinkUnderlineText(_ text: AttributedString) -> Text {
+        guard configuration.roundLinkUnderlines,
+              text.runs.contains(where: { $0.link != nil && $0.underlineStyle == configuration.linkUnderlineStyle })
+        else { return Text(text) }
+        var result = Text("")
+        for run in text.runs {
+            var content = AttributedString(text[run.range])
+            if run.link != nil, run.underlineStyle == configuration.linkUnderlineStyle {
+                // Core Text's dot pattern produces short rectangular strokes. Keep
+                // the native link attributes and draw circular dots below each run.
+                content.underlineStyle = nil
+                let segment = Text(content).customAttribute(RoundLinkUnderlineAttribute(
+                    color: configuration.linkUnderlineColor ?? run.foregroundColor ?? .primary
+                ))
+                result = Text("\(result)\(segment)")
+            } else {
+                result = Text("\(result)\(Text(content))")
+            }
+        }
+        return result
     }
 
     static func visibleText(input: AttributedString, rendered: RenderedState) -> AttributedString {

@@ -14,10 +14,33 @@ struct MarkdownRendererConfiguration: Hashable, AllowingModifyThroughKeyPath, Se
     
     var tintColors: [MarkdownTintableComponent : Color] = [:]
     var underlineLinks: Bool = false
+    var linkUnderlineStyle: Text.LineStyle = .single
+    var roundLinkUnderlines: Bool = false
+    var linkUnderlineColor: Color?
+    var linkSuffix: AttributedString?
     var listConfiguration: MarkdownListConfiguration = MarkdownListConfiguration()
 
     func resolvedMarkdownURL(for destination: String) -> URL? {
         URL(string: destination, relativeTo: preferredBaseURL)
+    }
+
+    func decoratedLinkLabel(_ label: AttributedString, url: URL) -> AttributedString {
+        var attributes = AttributeContainer()
+            .link(url)
+            .foregroundColor(tintColors[.link] ?? .accentColor)
+        attributes.underlineStyle = underlineLinks ? linkUnderlineStyle : .none
+        var result = label.mergingAttributes(attributes)
+        if let suffix = resolvedLinkSuffix(for: url) {
+            result += suffix
+        }
+        return result
+    }
+
+    func resolvedLinkSuffix(for url: URL) -> AttributedString? {
+        guard var suffix = linkSuffix, !suffix.characters.isEmpty else { return nil }
+        suffix.link = url
+        suffix.underlineStyle = .none
+        return suffix
     }
 }
 

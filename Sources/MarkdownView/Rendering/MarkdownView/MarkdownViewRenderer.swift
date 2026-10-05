@@ -283,15 +283,7 @@ struct MarkdownViewRenderer: @preconcurrency MarkupVisitor {
 
         return if let attributedString = nodeView.asAttributedString {
             MarkdownNodeView(
-                attributedString.mergingAttributes({
-                    var attributes = AttributeContainer()
-                        .link(url)
-                        .foregroundColor(tintColor)
-                    if underlineLinks {
-                        attributes.underlineStyle = .single
-                    }
-                    return attributes
-                }())
+                configuration.decoratedLinkLabel(attributedString, url: url)
             )
         } else {
              MarkdownNodeView {
