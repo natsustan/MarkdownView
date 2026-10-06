@@ -15,11 +15,11 @@ struct RoundLinkUnderlineRenderer: TextRenderer {
                 guard let underline = run[RoundLinkUnderlineAttribute.self] else { continue }
                 let rect = run.typographicBounds.rect
                 // Keep dots legible at body size while scaling with the text.
-                let diameter = max(1.05, lineRect.height / 16)
+                let diameter = max(1.3, lineRect.height / 13)
                 let radius = diameter / 2
                 let y = lineRect.maxY - radius
                 var dots = Path()
-                for x in stride(from: rect.minX + radius, through: rect.maxX - radius, by: diameter * 2.8) {
+                for x in stride(from: rect.minX + radius, through: rect.maxX - radius, by: diameter * 2.4) {
                     dots.addEllipse(in: CGRect(x: x - radius, y: y - radius, width: diameter, height: diameter))
                 }
                 context.fill(dots, with: .color(underline.color))
