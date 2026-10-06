@@ -14,7 +14,8 @@ struct RoundLinkUnderlineRenderer: TextRenderer {
             for run in line {
                 guard let underline = run[RoundLinkUnderlineAttribute.self] else { continue }
                 let rect = run.typographicBounds.rect
-                let diameter = max(0.7, lineRect.height / 24)
+                // Keep dots legible at body size while scaling with the text.
+                let diameter = max(1.05, lineRect.height / 16)
                 let radius = diameter / 2
                 let y = lineRect.maxY - radius
                 var dots = Path()
